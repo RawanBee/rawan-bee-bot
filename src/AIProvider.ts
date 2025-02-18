@@ -16,20 +16,15 @@ export const AIProvider = async (
     return "Error: Unsupported AI provider";
   }
 
-  console.log("🔹 Sending request to:", url);
-  console.log("🔹 Request body:", body);
-
   try {
     const response = await fetch(url, { method: "POST", headers, body });
 
-    console.log("🔹 Response status:", response.status);
-
     if (!response.body) {
-      console.error("❌ API Error: No response body");
+      console.error("API Error: No response body");
       return "Error: No response from model";
     }
 
-    // ✅ Handle JSON streaming correctly
+    // Handle JSON streaming correctly
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullMessage = "";
@@ -38,8 +33,6 @@ export const AIProvider = async (
       const { value, done } = await reader.read();
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
-
-      console.log("🔹 Received chunk:", chunk);
 
       // Process each JSON line separately
       chunk.split("\n").forEach((line) => {
@@ -53,16 +46,16 @@ export const AIProvider = async (
               return fullMessage.trim(); // Stop when done
             }
           } catch (error) {
-            console.error("❌ Error parsing JSON:", error, "Raw line:", line);
+            console.error("Error parsing JSON:", error, "Raw line:", line);
           }
         }
       });
     }
 
-    console.log("✅ Final response:", fullMessage.trim());
+    console.log("Final response:", fullMessage.trim());
     return fullMessage.trim();
   } catch (error) {
-    console.error("❌ Network Error:", error);
+    console.error("Network Error:", error);
     return "Error: Failed to connect to AI provider.";
   }
 };
