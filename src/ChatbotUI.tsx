@@ -234,6 +234,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
     typingIndicatorColor: "#666",
   },
   onMessageSend,
+  onSaveMessage
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
