@@ -28,6 +28,7 @@ interface ChatbotProps {
     inputFieldText?: string;
     sendButtonBg?: string;
     sendButtonTextColor?: string;
+    typingIndicatorColor?: string;
   };
   onMessageSend?: (message: Message) => void;
 }
@@ -78,6 +79,7 @@ const ChatHeader = styled.div`
   align-items: center;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
+  box-shadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const CloseButton = styled.button`
@@ -85,6 +87,7 @@ const CloseButton = styled.button`
   border: none;
   color: ${({ theme }) => theme?.closeButtonColor || "#fff"};
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
 `;
 
@@ -128,7 +131,7 @@ const MessageBubble = styled.div`
 const TypingIndicator = styled.div`
   font-style: italic;
   font-size: 14px;
-  color: #666;
+  color: ${({ theme }) => theme?.typingIndicatorColor || "#666"};
   padding: 5px;
 `;
 
@@ -181,6 +184,8 @@ const ChatButton = styled.button<{
   border: none;
   font-size: 28px;
   cursor: pointer;
+  font-size: 18px;
+  font-family: "Lalezar";
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   z-index: 10000;
   display: ${({ open }) =>
@@ -214,6 +219,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
     inputFieldText: "#000",
     sendButtonBg: "#0084ff",
     sendButtonTextColor: "#ffffff",
+    typingIndicatorColor: "#666",
   },
   onMessageSend,
 }) => {
@@ -297,7 +303,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <SendButton theme={theme} onClick={sendMessage}>
+          <SendButton theme={theme} disabled={isTyping} onClick={sendMessage}>
             ➤
           </SendButton>
         </InputContainer>
