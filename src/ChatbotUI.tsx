@@ -27,6 +27,7 @@ interface ChatbotProps {
     inputFieldBg?: string;
     inputFieldText?: string;
     sendButtonBg?: string;
+    sendButtonTextColor?: string;
   };
   onMessageSend?: (message: Message) => void;
 }
@@ -38,6 +39,7 @@ interface ChatContainerProps {
 
 /* 🟢 Chat Container */
 const ChatContainer = styled.div<ChatContainerProps>`
+  font-family: "DM Sans", sans-serif;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -52,7 +54,6 @@ const ChatContainer = styled.div<ChatContainerProps>`
   overflow: hidden;
   transition: transform 0.3s ease-in-out;
   z-index: 9999;
-
   @media (min-width: 768px) {
     width: 90%;
     max-width: 400px;
@@ -63,7 +64,6 @@ const ChatContainer = styled.div<ChatContainerProps>`
   }
 `;
 
-/* 🟢 Chat Header */
 const ChatHeader = styled.div`
   background: ${({ theme }) => theme?.headerBg || "#0084ff"};
   color: ${({ theme }) => theme?.headerTextColor || "#fff"};
@@ -82,30 +82,21 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme?.closeButtonColor || "#fff"};
-  font-size: 20px;
+  font-size: 22px;
   cursor: pointer;
 `;
 
-/* 🟢 Messages Container */
 const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 10px;
   display: flex;
   flex-direction: column;
-
   @media (min-width: 768px) {
     height: 400px;
   }
 `;
 
-const MessageWrapper = styled.div`
-  display: flex;
-  justify-content: ${({ className }) =>
-    className === "user" ? "flex-end" : "flex-start"};
-`;
-
-/* 🟢 Chat Bubbles */
 const MessageBubble = styled.div`
   background: ${({ className, theme }) =>
     className === "user"
@@ -122,15 +113,6 @@ const MessageBubble = styled.div`
   margin: 5px 0;
 `;
 
-/* 🟢 Typing Indicator */
-const TypingIndicator = styled.div`
-  font-style: italic;
-  font-size: 14px;
-  color: #666;
-  padding: 5px;
-`;
-
-/* 🟢 Input Box */
 const InputContainer = styled.div`
   display: flex;
   padding: 12px;
@@ -146,83 +128,38 @@ const ChatInput = styled.input`
   font-size: 16px;
   background: ${({ theme }) => theme?.inputFieldBg || "#fff"};
   color: ${({ theme }) => theme?.inputFieldText || "#000"};
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-    padding: 10px;
-  }
 `;
 
 const SendButton = styled.button`
   background: ${({ theme }) => theme?.sendButtonBg || "#0084ff"};
-  color: #fff;
+  color: ${({ theme }) => theme?.sendButtonTextColor || "#fff"};
   border: none;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 25px;
   margin-left: 5px;
   cursor: pointer;
-`;
-
-/* 🟢 Floating Chat Button */
-const ChatButton = styled.button<{
-  open: boolean;
-  theme: ChatbotProps["theme"];
-}>`
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: ${({ theme }) => theme?.chatButtonBg || "#0084ff"};
-  color: ${({ theme }) => theme?.chatButtonTextColor || "#fff"};
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 10000;
-  display: ${({ open }) =>
-    open ? "none" : "block"}; /* Hide when chat is open */
-
-  @media (max-width: 480px) {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    bottom: 15px;
-    right: 15px;
-  }
+  font-size: 18px;
 `;
 
 const ChatbotUI: React.FC<ChatbotProps> = ({
   aiProvider,
   apiKey,
   backendUrl,
-  theme = {
-    chatButtonBg: "#0084ff",
-    chatButtonTextColor: "#fff",
-    headerBg: "#0084ff",
-    headerTextColor: "#fff",
-    closeButtonColor: "#fff",
-    userMessageBg: "#0084ff",
-    userMessageText: "#fff",
-    botMessageBg: "#e4e6eb",
-    botMessageText: "#000",
-    inputContainerBg: "#f1f1f1",
-    inputFieldBg: "#fff",
-    inputFieldText: "#000",
-    sendButtonBg: "#0084ff",
-  },
+  theme = {},
   onMessageSend,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen, messages]);
 
   const sendMessage = async () => {
     if (!userInput.trim()) return;
@@ -248,49 +185,27 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
   };
 
   return (
-    <>
-      <ChatButton open={isOpen} theme={theme} onClick={() => setIsOpen(true)}>
-        💬
-      </ChatButton>
-
-      <ChatContainer open={isOpen} theme={theme}>
-        <ChatHeader theme={theme}>
-          Chat with AI
-          <CloseButton theme={theme} onClick={() => setIsOpen(false)}>
-            ❌
-          </CloseButton>
-        </ChatHeader>
-
-        <MessagesContainer>
-          {messages.map((msg, index) => (
-            <MessageWrapper
-              key={index}
-              className={msg.user === "You" ? "user" : "bot"}
-            >
-              <MessageBubble
-                className={msg.user === "You" ? "user" : "bot"}
-                theme={theme}
-              >
-                {msg.text}
-              </MessageBubble>
-            </MessageWrapper>
-          ))}
-          {isTyping && <TypingIndicator>Bot is typing...</TypingIndicator>}
-          <div ref={messagesEndRef} />
-        </MessagesContainer>
-
-        <InputContainer theme={theme}>
-          <ChatInput
-            theme={theme}
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-          />
-          <SendButton theme={theme} onClick={sendMessage}>
-            ➤
-          </SendButton>
-        </InputContainer>
-      </ChatContainer>
-    </>
+    <ChatContainer open={isOpen} theme={theme}>
+      <ChatHeader theme={theme}>
+        Chat with AI
+        <CloseButton theme={theme} onClick={() => setIsOpen(false)}>
+          X
+        </CloseButton>
+      </ChatHeader>
+      <MessagesContainer ref={messagesEndRef}></MessagesContainer>
+      <InputContainer theme={theme}>
+        <ChatInput
+          ref={inputRef}
+          theme={theme}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <SendButton theme={theme} onClick={sendMessage}>
+          ➤
+        </SendButton>
+      </InputContainer>
+    </ChatContainer>
   );
 };
 
