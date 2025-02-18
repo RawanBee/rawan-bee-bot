@@ -1,0 +1,28 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Build files
+dist/
+*.tsbuildinfo
+
+# Editor & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & Cache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment Variables (If You Ever Store API Keys Locally)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
