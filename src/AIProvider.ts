@@ -8,14 +8,18 @@ export const AIProvider = async (
   let headers: Record<string, string>;
   let body: string;
 
-  if (provider === "openai") {
+  if (provider === "selfhosted") {
+    url = "http://localhost:11434/api/generate"; // Ollama runs locally on this port
+    headers = { "Content-Type": "application/json" };
+    body = JSON.stringify({ model: "mistral", prompt: userMessage });
+  } else if (provider === "openai") {
     url = "https://api.openai.com/v1/chat/completions";
     headers = {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     };
     body = JSON.stringify({
-      model: "gpt-3.5-turbo", 
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: userMessage }],
     });
   } else if (provider === "gemini") {
@@ -37,9 +41,7 @@ export const AIProvider = async (
       return `Error: ${data.error?.message || "Unknown error"}`;
     }
 
-    return data.choices
-      ? data.choices[0].message.content
-      : data.output || "Error";
+    return data.response || "Error: No response from model";
   } catch (error) {
     console.error("Network Error:", error);
     return "Error: Failed to connect to AI provider.";
