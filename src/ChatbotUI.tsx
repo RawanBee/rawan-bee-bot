@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { AIProvider } from "./AIProvider";
 import { StorageManager } from "./StorageManager";
 import styled from "styled-components";
-
 interface Message {
   user: string;
   text: string;
@@ -21,7 +20,16 @@ interface ChatbotProps {
   onMessageSend?: (message: Message) => void;
 }
 
-const ChatContainer = styled.div<{ open: boolean }>`
+interface ChatContainerProps {
+  open: boolean;
+  theme: {
+    primaryColor?: string;
+    textColor?: string;
+    bgColor?: string;
+  };
+}
+
+const ChatContainer = styled.div<ChatContainerProps>`
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -52,14 +60,18 @@ const MessagesContainer = styled.div`
   flex-direction: column;
 `;
 
-const MessageBubble = styled.div<{ isUser: boolean }>`
-  background: ${(props) => (props.isUser ? "#0084ff" : "#e4e6eb")};
-  color: ${(props) => (props.isUser ? "#fff" : "#000")};
-  padding: 8px 12px;
-  border-radius: 18px;
-  max-width: 75%;
-  align-self: ${(props) => (props.isUser ? "flex-end" : "flex-start")};
-  margin-bottom: 8px;
+interface MessageBubbleProps {
+  isUser: boolean;
+}
+
+const MessageBubble = styled.div<MessageBubbleProps>`
+  background: ${({ isUser }) => (isUser ? "#0084ff" : "#e4e6eb")};
+  color: ${({ isUser }) => (isUser ? "#fff" : "#000")};
+  align-self: ${({ isUser }) => (isUser ? "flex-end" : "flex-start")};
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 70%;
+  word-wrap: break-word;
 `;
 
 const TypingIndicator = styled.div`
@@ -93,11 +105,17 @@ const SendButton = styled.button`
   cursor: pointer;
 `;
 
-const ChatButton = styled.button`
+interface ChatButtonProps {
+  theme: {
+    primaryColor?: string;
+  };
+}
+
+const ChatButton = styled.button<ChatButtonProps>`
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: ${(props) => props.theme.primaryColor || "#0084ff"};
+  background: ${({ theme }) => theme.primaryColor || "#0084ff"};
   color: #fff;
   width: 50px;
   height: 50px;
@@ -106,7 +124,7 @@ const ChatButton = styled.button`
   font-size: 24px;
   cursor: pointer;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 9999; /* Keeps it floating above everything */
+  z-index: 9999;
 `;
 
 const ChatbotUI: React.FC<ChatbotProps> = ({
@@ -164,12 +182,15 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
           <div ref={messagesEndRef} />
         </MessagesContainer>
         <InputContainer>
-          <ChatInput
+          <input
             type="text"
-            placeholder="Type a message..."
             value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUserInput(e.target.value)
+            }
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") sendMessage();
+            }}
           />
           <SendButton onClick={sendMessage}>➤</SendButton>
         </InputContainer>
