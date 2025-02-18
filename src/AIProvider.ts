@@ -9,7 +9,7 @@ export const AIProvider = async (
   let body: string;
 
   if (provider === "selfhosted") {
-    url = "http://localhost:11434/api/generate"; // Ollama runs locally on this port
+    url = "http://localhost:11434/api/generate"; // Ollama API
     headers = { "Content-Type": "application/json" };
     body = JSON.stringify({ model: "mistral", prompt: userMessage });
   } else if (provider === "openai") {
