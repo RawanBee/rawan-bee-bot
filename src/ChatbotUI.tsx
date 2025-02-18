@@ -291,7 +291,9 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
               </MessageBubble>
             </MessageWrapper>
           ))}
-          {isTyping && <TypingIndicator>Bot is typing...</TypingIndicator>}
+          {isTyping && (
+            <TypingIndicator theme={theme}>Bot is typing...</TypingIndicator>
+          )}
           <div ref={messagesEndRef} />
         </MessagesContainer>
 
@@ -301,7 +303,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
             theme={theme}
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && !isTyping && sendMessage()}
           />
           <SendButton theme={theme} disabled={isTyping} onClick={sendMessage}>
             ➤
