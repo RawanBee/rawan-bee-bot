@@ -15,7 +15,7 @@ export const AIProvider = async (
       "Content-Type": "application/json",
     };
     body = JSON.stringify({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", 
       messages: [{ role: "user", content: userMessage }],
     });
   } else if (provider === "gemini") {
@@ -28,9 +28,20 @@ export const AIProvider = async (
     body = JSON.stringify({ input: userMessage });
   }
 
-  const response = await fetch(url, { method: "POST", headers, body });
-  const data = await response.json();
-  return data.choices
-    ? data.choices[0].message.content
-    : data.output || "Error";
+  try {
+    const response = await fetch(url, { method: "POST", headers, body });
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("API Error:", data);
+      return `Error: ${data.error?.message || "Unknown error"}`;
+    }
+
+    return data.choices
+      ? data.choices[0].message.content
+      : data.output || "Error";
+  } catch (error) {
+    console.error("Network Error:", error);
+    return "Error: Failed to connect to AI provider.";
+  }
 };
