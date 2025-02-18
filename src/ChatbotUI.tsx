@@ -6,6 +6,7 @@ import styled from "styled-components";
 interface Message {
   user: string;
   text: string;
+  bot: string; 
 }
 
 interface ChatbotProps {
@@ -92,17 +93,19 @@ const MessagesContainer = styled.div`
   }
 `;
 
-interface MessageBubbleProps {
-  $isUser: boolean;
-}
+const MessageWrapper = styled.div`
+  display: flex;
+  justify-content: ${({ className }) =>
+    className === "user" ? "flex-end" : "flex-start"};
+`;
 
 /* 🟢 Chat Bubbles */
-const MessageBubble = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "$isUser",
-})<MessageBubbleProps>`
-  background: ${({ $isUser }) => ($isUser ? "#0084ff" : "#e4e6eb")};
-  color: ${({ $isUser }) => ($isUser ? "#fff" : "#000")};
-  align-self: ${({ $isUser }) => ($isUser ? "flex-end" : "flex-start")};
+const MessageBubble = styled.div`
+  background: ${({ className }) =>
+    className === "user" ? "#0084ff" : "#e4e6eb"};
+  color: ${({ className }) => (className === "user" ? "#fff" : "#000")};
+  align-self: ${({ className }) =>
+    className === "user" ? "flex-end" : "flex-start"};
   padding: 10px;
   border-radius: 12px;
   max-width: 80%;
@@ -200,7 +203,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
   const sendMessage = async () => {
     if (!userInput.trim()) return;
 
-    const userMessage: Message = { user: "You", text: userInput };
+    const userMessage: Message = { user: "You", text: userInput, bot: "" };
     setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
     setIsTyping(true);
@@ -211,7 +214,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
       backendUrl || "",
       userInput
     );
-    const botMessage: Message = { user: "Bot", text: response };
+    const botMessage: Message = { user: "Bot", text: response, bot: "" };
 
     setMessages((prev) => [...prev, botMessage]);
     setIsTyping(false);
@@ -234,9 +237,14 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
 
         <MessagesContainer>
           {messages.map((msg, index) => (
-            <MessageBubble key={index} $isUser={msg.user === "You"}>
-              {msg.text}
-            </MessageBubble>
+            <MessageWrapper
+              key={index}
+              className={msg.user === "You" ? "user" : "bot"}
+            >
+              <MessageBubble className={msg.user === "You" ? "user" : "bot"}>
+                {msg.text}
+              </MessageBubble>
+            </MessageWrapper>
           ))}
           {isTyping && <TypingIndicator>Bot is typing...</TypingIndicator>}
           <div ref={messagesEndRef} />
