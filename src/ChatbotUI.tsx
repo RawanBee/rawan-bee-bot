@@ -31,6 +31,7 @@ interface ChatbotProps {
     typingIndicatorColor?: string;
   };
   onMessageSend?: (message: Message) => void;
+  onSaveMessage?: (message: Message) => void; // to store messages
 }
 
 interface ChatContainerProps {
@@ -98,6 +99,17 @@ const MessagesContainer = styled.div`
   padding: 10px;
   display: flex;
   flex-direction: column;
+
+  /* Hide scrollbar for Chrome, Safari, and Edge */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+
+  /* Hide scrollbar for IE, Edge */
+  -ms-overflow-style: none;
 
   @media (min-width: 768px) {
     height: 400px;
@@ -248,6 +260,9 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
     setUserInput("");
     setIsTyping(true);
 
+    // to store the user message
+    if (onSaveMessage) onSaveMessage(userMessage);
+
     const response = await AIProvider(
       aiProvider,
       apiKey,
@@ -258,6 +273,9 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
 
     setMessages((prev) => [...prev, botMessage]);
     setIsTyping(false);
+
+    // to store the bot response
+    if (onSaveMessage) onSaveMessage(botMessage);
 
     if (onMessageSend) onMessageSend(botMessage);
     StorageManager.save(botMessage);
