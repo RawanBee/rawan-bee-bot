@@ -12,35 +12,24 @@ export const AIProvider = async (
     url = "http://localhost:11434/api/generate"; // Ollama API
     headers = { "Content-Type": "application/json" };
     body = JSON.stringify({ model: "mistral", prompt: userMessage });
-  } else if (provider === "openai") {
-    url = "https://api.openai.com/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: userMessage }],
-    });
-  } else if (provider === "gemini") {
-    url = `https://generativelanguage.googleapis.com/v1beta2/models/gemini-pro:generateText?key=${apiKey}`;
-    headers = { "Content-Type": "application/json" };
-    body = JSON.stringify({ prompt: userMessage });
   } else {
-    url = backendUrl;
-    headers = { "Content-Type": "application/json" };
-    body = JSON.stringify({ input: userMessage });
+    return "Error: Unsupported AI provider";
   }
+
+  console.log("🔹 Sending request to:", url);
+  console.log("🔹 Request body:", body);
 
   try {
     const response = await fetch(url, { method: "POST", headers, body });
 
+    console.log("🔹 Response status:", response.status);
+
     if (!response.body) {
-      console.error("API Error: No response body");
+      console.error("❌ API Error: No response body");
       return "Error: No response from model";
     }
 
-    // ✅ Handle streaming response properly
+    // ✅ Handle JSON streaming correctly
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullMessage = "";
@@ -50,22 +39,30 @@ export const AIProvider = async (
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
 
-      // Extract "response" field from each JSON line and concatenate
+      console.log("🔹 Received chunk:", chunk);
+
+      // Process each JSON line separately
       chunk.split("\n").forEach((line) => {
         if (line.trim()) {
           try {
             const parsed = JSON.parse(line);
-            fullMessage += parsed.response + " ";
+            if (parsed.response) {
+              fullMessage += parsed.response + " ";
+            }
+            if (parsed.done) {
+              return fullMessage.trim(); // Stop when done
+            }
           } catch (error) {
-            console.error("Error parsing chunk:", error);
+            console.error("❌ Error parsing JSON:", error, "Raw line:", line);
           }
         }
       });
     }
 
+    console.log("✅ Final response:", fullMessage.trim());
     return fullMessage.trim();
   } catch (error) {
-    console.error("Network Error:", error);
+    console.error("❌ Network Error:", error);
     return "Error: Failed to connect to AI provider.";
   }
 };
