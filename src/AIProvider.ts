@@ -52,7 +52,6 @@ export const AIProvider = async (
       });
     }
 
-    console.log("Final response:", fullMessage.trim());
     return fullMessage.trim();
   } catch (error) {
     console.error("Network Error:", error);

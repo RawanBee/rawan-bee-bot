@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { AIProvider } from "./AIProvider";
 import { StorageManager } from "./StorageManager";
 import styled from "styled-components";
+
 interface Message {
   user: string;
   text: string;
-  bot: string;
 }
 
 interface ChatbotProps {
@@ -29,53 +29,88 @@ interface ChatContainerProps {
   };
 }
 
+/* 🟢 Mobile-First Chat Container */
 const ChatContainer = styled.div<ChatContainerProps>`
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 350px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 85vh;
   background: ${(props) => props.theme.bgColor || "#fff"};
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  display: ${(props) => (props.open ? "block" : "none")};
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.2);
+  display: ${({ open }) => (open ? "flex" : "none")};
+  flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
-  z-index: 9999; /* Ensures it's always on top */
+  transition: transform 0.3s ease-in-out;
+  z-index: 9999;
+
+  @media (min-width: 768px) {
+    width: 90%;
+    max-width: 400px;
+    height: 500px;
+    bottom: 20px;
+    right: 20px;
+    left: auto;
+  }
 `;
 
+/* 🟢 Chat Header */
 const ChatHeader = styled.div`
   background: ${(props) => props.theme.primaryColor || "#0084ff"};
   color: #fff;
-  padding: 10px;
-  font-size: 16px;
+  padding: 14px;
+  font-size: 18px;
   font-weight: bold;
   text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 `;
 
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+`;
+
+/* 🟢 Messages Container */
 const MessagesContainer = styled.div`
-  max-height: 400px;
+  flex: 1;
   overflow-y: auto;
   padding: 10px;
   display: flex;
   flex-direction: column;
+
+  @media (min-width: 768px) {
+    height: 400px;
+  }
 `;
 
-const MessageWrapper = styled.div`
-  display: flex;
-  justify-content: ${({ className }) =>
-    className === "user" ? "flex-end" : "flex-start"};
-`;
+interface MessageBubbleProps {
+  $isUser: boolean;
+}
 
-const MessageBubble = styled.div`
-  background: ${({ className }) =>
-    className === "user" ? "#0084ff" : "#e4e6eb"};
-  color: ${({ className }) => (className === "user" ? "#fff" : "#000")};
+/* 🟢 Chat Bubbles */
+const MessageBubble = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "$isUser",
+})<MessageBubbleProps>`
+  background: ${({ $isUser }) => ($isUser ? "#0084ff" : "#e4e6eb")};
+  color: ${({ $isUser }) => ($isUser ? "#fff" : "#000")};
+  align-self: ${({ $isUser }) => ($isUser ? "flex-end" : "flex-start")};
   padding: 10px;
-  border-radius: 10px;
-  max-width: 70%;
+  border-radius: 12px;
+  max-width: 80%;
   word-wrap: break-word;
+  margin: 5px 0;
 `;
 
+/* 🟢 Typing Indicator */
 const TypingIndicator = styled.div`
   font-style: italic;
   font-size: 14px;
@@ -83,30 +118,38 @@ const TypingIndicator = styled.div`
   padding: 5px;
 `;
 
+/* 🟢 Input Box */
 const InputContainer = styled.div`
   display: flex;
-  padding: 10px;
+  padding: 12px;
   background: #f1f1f1;
 `;
 
 const ChatInput = styled.input`
   flex: 1;
-  padding: 8px;
+  padding: 12px;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   outline: none;
+  font-size: 16px;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    padding: 10px;
+  }
 `;
 
 const SendButton = styled.button`
   background: ${(props) => props.theme.primaryColor || "#0084ff"};
   color: #fff;
   border: none;
-  padding: 8px 12px;
-  border-radius: 20px;
+  padding: 10px 14px;
+  border-radius: 25px;
   margin-left: 5px;
   cursor: pointer;
 `;
 
+/* 🟢 Floating Chat Button */
 interface ChatButtonProps {
   theme: {
     primaryColor?: string;
@@ -119,14 +162,22 @@ const ChatButton = styled.button<ChatButtonProps>`
   right: 20px;
   background: ${({ theme }) => theme.primaryColor || "#0084ff"};
   color: #fff;
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
+  z-index: 10000;
+
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    bottom: 15px;
+    right: 15px;
+  }
 `;
 
 const ChatbotUI: React.FC<ChatbotProps> = ({
@@ -149,7 +200,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
   const sendMessage = async () => {
     if (!userInput.trim()) return;
 
-    const userMessage: Message = { user: "You", text: userInput, bot: "" };
+    const userMessage: Message = { user: "You", text: userInput };
     setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
     setIsTyping(true);
@@ -160,7 +211,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
       backendUrl || "",
       userInput
     );
-    const botMessage: Message = { user: "Bot", text: response, bot: "" };
+    const botMessage: Message = { user: "Bot", text: response };
 
     setMessages((prev) => [...prev, botMessage]);
     setIsTyping(false);
@@ -171,19 +222,21 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
 
   return (
     <>
-      <ChatButton onClick={() => setIsOpen(!isOpen)}>💬</ChatButton>
+      <ChatButton theme={theme} onClick={() => setIsOpen((prev) => !prev)}>
+        💬
+      </ChatButton>
+
       <ChatContainer open={isOpen} theme={theme}>
-        <ChatHeader theme={theme}>Chat with AI</ChatHeader>
+        <ChatHeader theme={theme}>
+          Chat with AI
+          <CloseButton onClick={() => setIsOpen(false)}>❌</CloseButton>
+        </ChatHeader>
+
         <MessagesContainer>
           {messages.map((msg, index) => (
-            <MessageWrapper
-              key={index}
-              className={msg.user === "You" ? "user" : "bot"}
-            >
-              <MessageBubble className={msg.user === "You" ? "user" : "bot"}>
-                {msg.text}
-              </MessageBubble>
-            </MessageWrapper>
+            <MessageBubble key={index} $isUser={msg.user === "You"}>
+              {msg.text}
+            </MessageBubble>
           ))}
           {isTyping && <TypingIndicator>Bot is typing...</TypingIndicator>}
           <div ref={messagesEndRef} />
@@ -193,12 +246,8 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
           <ChatInput
             type="text"
             value={userInput}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInput(e.target.value)
-            }
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") sendMessage();
-            }}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
           <SendButton onClick={sendMessage}>➤</SendButton>
         </InputContainer>
