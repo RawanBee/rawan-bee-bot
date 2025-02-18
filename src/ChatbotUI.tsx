@@ -60,14 +60,16 @@ const MessagesContainer = styled.div`
   flex-direction: column;
 `;
 
-interface MessageBubbleProps {
-  isUser: boolean;
-}
+const MessageWrapper = styled.div`
+  display: flex;
+  justify-content: ${({ className }) =>
+    className === "user" ? "flex-end" : "flex-start"};
+`;
 
-const MessageBubble = styled.div<MessageBubbleProps>`
-  background: ${({ isUser }) => (isUser ? "#0084ff" : "#e4e6eb")};
-  color: ${({ isUser }) => (isUser ? "#fff" : "#000")};
-  align-self: ${({ isUser }) => (isUser ? "flex-end" : "flex-start")};
+const MessageBubble = styled.div`
+  background: ${({ className }) =>
+    className === "user" ? "#0084ff" : "#e4e6eb"};
+  color: ${({ className }) => (className === "user" ? "#fff" : "#000")};
   padding: 10px;
   border-radius: 10px;
   max-width: 70%;
@@ -174,15 +176,21 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
         <ChatHeader theme={theme}>Chat with AI</ChatHeader>
         <MessagesContainer>
           {messages.map((msg, index) => (
-            <MessageBubble key={index} isUser={msg.user === "You"}>
-              {msg.text}
-            </MessageBubble>
+            <MessageWrapper
+              key={index}
+              className={msg.user === "You" ? "user" : "bot"}
+            >
+              <MessageBubble className={msg.user === "You" ? "user" : "bot"}>
+                {msg.text}
+              </MessageBubble>
+            </MessageWrapper>
           ))}
           {isTyping && <TypingIndicator>Bot is typing...</TypingIndicator>}
           <div ref={messagesEndRef} />
         </MessagesContainer>
+
         <InputContainer>
-          <input
+          <ChatInput
             type="text"
             value={userInput}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
