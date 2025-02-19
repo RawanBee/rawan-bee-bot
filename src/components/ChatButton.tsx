@@ -1,14 +1,6 @@
 import React from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 
-const bounce = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-`;
 interface ChatButtonProps {
   open: boolean;
   theme?: {
@@ -34,7 +26,6 @@ const StyledChatButton = styled.button<ChatButtonProps>`
   cursor: pointer;
   z-index: 10000;
   display: ${({ open }) => (open ? "none" : "block")};
-  animation: ${({ open }) => (open ? "none" : `${bounce} 1.5s infinite`)};
 
   @media (max-width: 480px) {
     width: 50px;
