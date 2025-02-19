@@ -13,7 +13,6 @@ interface ChatbotProps {
   aiProvider: "openai" | "gemini" | "selfhosted";
   apiKey: string;
   backendUrl?: string;
-  direction?: "ltr" | "rtl";
   theme?: {
     chatButtonBg?: string;
     chatButtonTextColor?: string;
@@ -38,7 +37,6 @@ interface ChatbotProps {
 interface ChatContainerProps {
   open: boolean;
   theme: ChatbotProps["theme"];
-  direction?: "ltr" | "rtl";
 }
 
 /* 🟢 Chat Container */
@@ -58,7 +56,6 @@ const ChatContainer = styled.div<ChatContainerProps>`
   overflow: hidden;
   transition: transform 0.3s ease-in-out;
   z-index: 9999;
-  direction: ${({ direction }) => direction};
 
   @media (min-width: 768px) {
     width: 90%;
@@ -120,29 +117,27 @@ const MessagesContainer = styled.div`
   }
 `;
 
-const MessageWrapper = styled.div<{ direction: "ltr" | "rtl"; user: boolean }>`
+const MessageWrapper = styled.div`
   display: flex;
-  justify-content: ${({ user }) => (user ? "flex-end" : "flex-start")};
-  direction: ${({ direction }) => direction};
+  justify-content: ${({ className }) =>
+    className === "user" ? "flex-end" : "flex-start"};
 `;
 
 /* 🟢 Chat Bubbles */
-const MessageBubble = styled.div<{
-  user: boolean;
-  theme: ChatbotProps["theme"];
-}>`
-  background: ${({ user, theme }) =>
-    user
+const MessageBubble = styled.div`
+  background: ${({ className, theme }) =>
+    className === "user"
       ? theme?.userMessageBg || "#0084ff"
       : theme?.botMessageBg || "#e4e6eb"};
-  color: ${({ user, theme }) =>
-    user ? theme?.userMessageText || "#fff" : theme?.botMessageText || "#000"};
+  color: ${({ className, theme }) =>
+    className === "user"
+      ? theme?.userMessageText || "#fff"
+      : theme?.botMessageText || "#000"};
   padding: 10px;
   border-radius: 12px;
   max-width: 80%;
   word-wrap: break-word;
   margin: 5px 0;
-  text-align: ${({ user }) => (user ? "right" : "left")};
 `;
 
 /* 🟢 Typing Indicator */
@@ -222,7 +217,6 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
   aiProvider,
   apiKey,
   backendUrl,
-  direction = "rtl",
   theme = {
     chatButtonBg: "#0084ff",
     chatButtonTextColor: "#fff",
@@ -241,7 +235,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
     typingIndicatorColor: "#666",
   },
   onMessageSend,
-  onSaveMessage,
+  onSaveMessage
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -295,7 +289,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
         Bot
       </ChatButton>
 
-      <ChatContainer open={isOpen} theme={theme} direction={direction}>
+      <ChatContainer open={isOpen} theme={theme}>
         <ChatHeader theme={theme}>
           Chat with AI
           <CloseButton theme={theme} onClick={() => setIsOpen(false)}>
@@ -307,10 +301,12 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
           {messages.map((msg, index) => (
             <MessageWrapper
               key={index}
-              user={msg.user === "You"}
-              direction={direction}
+              className={msg.user === "You" ? "user" : "bot"}
             >
-              <MessageBubble user={msg.user === "You"} theme={theme}>
+              <MessageBubble
+                className={msg.user === "You" ? "user" : "bot"}
+                theme={theme}
+              >
                 {msg.text}
               </MessageBubble>
             </MessageWrapper>
