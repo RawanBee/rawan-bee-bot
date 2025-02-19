@@ -1,6 +1,14 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 
+const bounce = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+`;
 interface ChatButtonProps {
   open: boolean;
   theme?: {
@@ -9,11 +17,6 @@ interface ChatButtonProps {
   };
   onClick: () => void;
 }
-
-const bounce = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-`;
 
 const StyledChatButton = styled.button<ChatButtonProps>`
   position: fixed;
