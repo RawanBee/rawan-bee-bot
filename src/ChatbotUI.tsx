@@ -64,6 +64,7 @@ const ChatContainer = styled.div<ChatContainerProps>`
     bottom: 20px;
     right: 20px;
     left: auto;
+    border-radius: 20px;
   }
 `;
 
