@@ -154,15 +154,18 @@ npm install
 npm run build
 ```
 
-### **3️⃣ Run Tests**
-```sh
-npm test
-```
-
 ### **4️⃣ Publish to NPM**
 ```sh
 npm publish
 ```
+
+---
+
+## Screenshot
+
+Here is a preview of the chatbot UI:
+
+![Chatbot UI](./src/assets/ui.png)
 
 ---
 

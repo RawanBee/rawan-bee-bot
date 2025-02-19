@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
+import { lightenColor } from "../utils";
 
 interface InputContainerProps {
   theme: any;
@@ -63,4 +64,12 @@ const SendButton = styled.button`
   border-radius: 25px;
   margin-left: 5px;
   cursor: pointer;
+  transition: background 0.3s ease-in-out;
+
+  &:hover {
+    background: ${({ theme }) =>
+      theme?.sendButtonBg
+        ? lightenColor(theme.sendButtonBg, 0.1)
+        : "#3399ff"}; /* Lighten color */
+  }
 `;
