@@ -235,7 +235,7 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
     typingIndicatorColor: "#666",
   },
   onMessageSend,
-  onSaveMessage
+  onSaveMessage,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -286,12 +286,12 @@ const ChatbotUI: React.FC<ChatbotProps> = ({
   return (
     <>
       <ChatButton open={isOpen} theme={theme} onClick={() => setIsOpen(true)}>
-        Bot
+        🤖
       </ChatButton>
 
       <ChatContainer open={isOpen} theme={theme}>
         <ChatHeader theme={theme}>
-          Chat with AI
+          Bot
           <CloseButton theme={theme} onClick={() => setIsOpen(false)}>
             X
           </CloseButton>
