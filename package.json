@@ -1,10 +1,10 @@
 {
   "name": "rawan-bee-bot",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A flexible, AI-powered chatbot UI component for React, supporting multiple AI providers (OpenAI, Gemini, self-hosted LLMs).",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/ChatbotUI.js",
+  "module": "dist/ChatbotUI.esm.js",
+  "types": "dist/ChatbotUI.d.ts",
   "files": [
     "dist",
     "README.md"
