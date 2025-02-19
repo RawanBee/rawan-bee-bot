@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 interface ChatButtonProps {
   open: boolean;
@@ -10,7 +10,11 @@ interface ChatButtonProps {
   onClick: () => void;
 }
 
-/* 🟢 Floating Chat Button */
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
 const StyledChatButton = styled.button<ChatButtonProps>`
   position: fixed;
   bottom: 20px;
@@ -27,6 +31,7 @@ const StyledChatButton = styled.button<ChatButtonProps>`
   cursor: pointer;
   z-index: 10000;
   display: ${({ open }) => (open ? "none" : "block")};
+  animation: ${({ open }) => (open ? "none" : `${bounce} 1.5s infinite`)};
 
   @media (max-width: 480px) {
     width: 50px;

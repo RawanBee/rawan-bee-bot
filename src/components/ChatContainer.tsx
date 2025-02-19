@@ -47,7 +47,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
 const Container = styled.div<{ open: boolean; theme: any }>`
   font-family: "DM Sans";
   position: fixed;
-  bottom: 0;
+  bottom: ${({ open }) => (open ? "0" : "-100vh")};
   left: 0;
   width: 100%;
   height: 85vh;
@@ -59,13 +59,14 @@ const Container = styled.div<{ open: boolean; theme: any }>`
   flex-direction: column;
   overflow: hidden;
   transition: transform 0.3s ease-in-out;
+  transition: bottom 0.5s ease-in-out; /* Smooth slide effect */
   z-index: 9999;
 
   @media (min-width: 768px) {
     width: 90%;
     max-width: 400px;
     height: 500px;
-    bottom: 20px;
+    bottom: ${({ open }) => (open ? "20px" : "-600px")};
     right: 20px;
     left: auto;
     border-radius: 20px;

@@ -9,7 +9,7 @@ export const AIProvider = async (
   let body: string;
 
   if (provider === "selfhosted") {
-    url = "http://localhost:11434/api/generate"; // Ollama API
+    url = "http://localhost:11434/api/generate"; // ollama api
     headers = { "Content-Type": "application/json" };
     body = JSON.stringify({ model: "mistral", prompt: userMessage });
   } else {
@@ -24,7 +24,7 @@ export const AIProvider = async (
       return "Error: No response from model";
     }
 
-    // Handle JSON streaming correctly
+    // handle json streaming 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullMessage = "";
@@ -34,7 +34,7 @@ export const AIProvider = async (
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
 
-      // Process each JSON line separately
+      // process each json line separately
       chunk.split("\n").forEach((line) => {
         if (line.trim()) {
           try {
@@ -43,7 +43,7 @@ export const AIProvider = async (
               fullMessage += parsed.response + " ";
             }
             if (parsed.done) {
-              return fullMessage.trim(); // Stop when done
+              return fullMessage.trim(); // stop when done
             }
           } catch (error) {
             console.error("Error parsing JSON:", error, "Raw line:", line);
